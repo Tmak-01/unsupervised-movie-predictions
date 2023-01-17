@@ -33,11 +33,16 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+import heapq
+from numpy.linalg import norm
+from sklearn.feature_extraction.text import TfidfVectorizer 
 
 # Importing data
 movies = pd.read_csv('resources/data/movies.csv', sep = ',')
 ratings = pd.read_csv('resources/data/ratings.csv')
 movies.dropna(inplace=True)
+titles = movies['title']
+indices = pd.Series(movies.index, index=movies['title'])
 
 def data_preprocessing(subset_size):
     """Prepare data for use within Content filtering algorithm.
@@ -81,32 +86,38 @@ def content_model(movie_list,top_n=10):
     # Initializing the empty list of recommended movies
     recommended_movies = []
     data = data_preprocessing(27000)
+    # tfidf was added !!!!!
     # Instantiating and generating the count matrix
-    count_vec = CountVectorizer()
-    count_matrix = count_vec.fit_transform(data['keyWords'])
-    indices = pd.Series(data['title'])
-    cosine_sim = cosine_similarity(count_matrix, count_matrix)
-    # Getting the index of the movie that matches the title
-    idx_1 = indices[indices == movie_list[0]].index[0]
-    idx_2 = indices[indices == movie_list[1]].index[0]
-    idx_3 = indices[indices == movie_list[2]].index[0]
-    # Creating a Series with the similarity scores in descending order
-    rank_1 = cosine_sim[idx_1]
-    rank_2 = cosine_sim[idx_2]
-    rank_3 = cosine_sim[idx_3]
-    # Calculating the scores
-    score_series_1 = pd.Series(rank_1).sort_values(ascending = False)
-    score_series_2 = pd.Series(rank_2).sort_values(ascending = False)
-    score_series_3 = pd.Series(rank_3).sort_values(ascending = False)
-    # Getting the indexes of the 10 most similar movies
-    listings = score_series_1.append(score_series_1).append(score_series_3).sort_values(ascending = False)
-
-    # Store movie names
-    recommended_movies = []
-    # Appending the names of movies
-    top_50_indexes = list(listings.iloc[1:50].index)
-    # Removing chosen movies
-    top_indexes = np.setdiff1d(top_50_indexes,[idx_1,idx_2,idx_3])
-    for i in top_indexes[:top_n]:
-        recommended_movies.append(list(movies['title'])[i])
-    return recommended_movies
+    tf = TfidfVectorizer(analyzer='word', min_df=0, stop_words='english', max_features = 10000)
+    # Produce a feature matrix, where each row corresponds to a book,
+    # with TF-IDF features as columns 
+    count_matrix = tf.fit_transform(data['keyWords'])
+    sparse_df = pd.DataFrame(count_matrix.toarray(), columns=tf.get_feature_names_out())
+    # get the indices of the chosen movies
+    movie_one_idx = indices[movie_list[0]]
+    movie_two_idx = indices[movie_list[1]]
+    movie_three_idx = indices[movie_list[2]]
+    # do the similarity matrix for each movie and other movies
+    final_scores = []
+    for item in movie_list:
+        temp_scores = []
+        movie_idx = indices[item]
+        # get the movie vector
+        movie_vector = sparse_df.iloc[movie_idx].to_numpy()
+        # get all the rows of the data frame
+        for index, rows in sparse_df.iterrows():
+            if movie_idx != index:
+                # get the vector for that row
+                ref_vector = rows.to_numpy()
+                # do the similarity score
+                sim_score = np.dot(ref_vector, movie_vector)/(norm(ref_vector)*norm(movie_vector)) 
+                temp_scores.append((sim_score, index))
+        # get the 10 highest ratings 
+        five_highest = heapq.nlargest(20, temp_scores, key=lambda t: t[0])
+        final_scores = final_scores + five_highest
+    # sort the final scores to get the top 15 movies
+    final_scores.sort(key=lambda x : x[0], reverse=True)
+    # get the movie titles from the final_scores list and put in a list
+    top_titles = [  indices[indices == indice].index[0] for scores, indice in final_scores]
+    return top_titles[:top_n]
+    

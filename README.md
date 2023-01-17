@@ -1,4 +1,45 @@
+![Movie_Recommendations](resources/imgs/Image_header.png)
 # Streamlit-based Recommender System
+### Project Summary
+This project was focused on Building a Streamlit-based recommender system for Netflix which predict if a user will like a movie or not and how user would rate such movie l.e user's Preference and user's rating 
+- wrangled on the dataet
+- Carried out Exploratory data Analysis on the data-set to ge more insight
+- Engineered features to appropriate format
+- Built a content based and Collaborative based filtering algorithm that is capable of predicting user prefence and rating for a movie 
+- Deployed using streamlit  
+
+### Data Set
+This dataset consists of several million 5-star ratings obtained from users of the online MovieLens movie recommendation service.For this Predict, we used a special version of the MovieLens dataset which has enriched with additional data, and resampled for fair evaluation purposes.
+The data for the MovieLens dataset is maintained by the GroupLens research group in the Department of Computer Science and Engineering at the University of Minnesota. Additional movie content data was legally scraped from IMDB. \
+Supplied Files 
+- genome_scores.csv - a score mapping the strength between movies and tag-related properties. 
+- genome_tags.csv - user assigned tags for genome-related scores 
+- imdb_data.csv - Additional movie metadata scraped from IMDB using the links. 
+- links.csv - File providing a mapping between a MovieLens ID and associated IMDB and TMDB IDs. 
+- sample_submission.csv - Sample of the submission format for the hackathon. 
+- tags.csv - User assigned for the movies within the dataset. 
+- test.csv - The test split of the dataset. Contains user and movie IDs with no rating data. 
+- train.csv - The training split of the dataset. Contains user and movie IDs with associated rating data 
+
+### Exploratory Data Analysis
+Here are some examples of analysis that was gotten from the data, check the notebook for more \
+![](images/6.1.png) \
+The picture above shows the average rating in the dataset. we can see that high percentage movie viewers tend to rate movies high. The mean average rating for all the movies is 3.5 while the modal rating(most frequently occuring) rating is 4.0. \
+![](images/9.png)
+This shows that users tend to rate Movie that are purely drama in nature, followed by comedy while they least rate movies with Imax genres. Therefore there is an high chance that a user would like a movie which is pure drama drama compared to musical movies.
+![](images/7.png)
+This shows the total amount of movies produced per year
+![](image/8.png)
+This shows the ten top most rated movies 
+
+### Model Building And Deployment  
+Built a content based and collaborative based filtering algothm using Success module whic was quite easy compared to the conventional way and deloyed it on streamlit for acesibility 
+
+
+
+
+# INSTRUCTION
+
 #### EXPLORE Data Science Academy Unsupervised Predict
 
 ## 1) Overview
